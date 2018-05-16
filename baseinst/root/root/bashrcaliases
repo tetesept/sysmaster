@@ -1,0 +1,18 @@
+
+# user defined aliases by sysmaster
+alias ls='ls --color=auto'
+alias ll='ls -ahl'
+alias la='ls -A'
+alias l='ls -CF'
+alias dir='ls -lah --color=auto'
+alias lll='ls --color=auto --format=long'
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+alias google='w3m www.google.de'
+alias ip='w3m www.whatismyipaddress.com 2> /dev/null | egrep -A 2 "Your IPv4 Address|Your IPv6 Address" | head -n 2 | tail -n 1'
+alias sysup='apt-get update && apt-get upgrade && apt-get clean && apt-get autoremove'
+alias disup='apt-get update && apt-get upgrade && apt-get dist-upgrade && apt-get clean && apt-get autoremove'
+
+
+

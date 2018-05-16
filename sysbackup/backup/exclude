@@ -1,0 +1,11 @@
+- /dev
+- /tmp
+- /var/tmp
+- /proc
+- /sys
+- /root/.cache
+- /root/.gnupg/random_seed
+- /var/spool
+- /var/log/dupl_backup
+- /run/lxcfs/controllers
+- /var/lib/lxcfs

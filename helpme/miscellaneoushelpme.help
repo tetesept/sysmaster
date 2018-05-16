@@ -1,0 +1,29 @@
+######################################################################################################
+                                        ##   Help-File   ##
+######################################################################################################
+
+Usage: 	
+	
+        ./sysmaster [OPTION]
+	
+Options:
+
+	-i   System Info
+	-d   System Update
+	-g   System Upgrade
+	-r   Check for new Release
+	-m   Systemmonitor
+	-t   Systemtest
+	-b   Basisinstallation
+	-u   Install Backup
+	-n   Install Nagios Client
+	-f   Install Firewall
+	-e   Server First install Package
+	-s   Get Backup Status
+	-v   Show VM status
+	-p   Manage VM
+	-l   Show Logfiles
+	-z   Show Version Info
+	
+
+Execute ./sysmaster whithout any Parameter to enter GUI

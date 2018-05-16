@@ -1,0 +1,40 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          Firewall
+# Required-Start:    $local_fs $remote_fs $network $syslog $named
+# Required-Stop:     $local_fs $remote_fs $network $syslog $named
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# X-Interactive:     true
+# Short-Description: Enable/Disbale Firewall
+# Description:       De-/Activates IPtables Firewall Rules
+### END INIT INFO
+# Start/stop the firewall.
+
+test -f /etc/firewall || exit 0
+
+case "$1" in
+	start)
+		echo -n "Setup firewall rules"
+		/etc/firewall >> /var/log/firewall.log
+		echo "."
+	;;
+	stop)
+		echo -n "Reset firewall rules"
+		/etc/firewall.open >> /var/log/firewall.log
+		echo "."
+	;;
+	restart)
+		echo -n "Restarting firewall"
+		/etc/firewall.open
+		/etc/firewall
+		echo "."
+	;;
+	*)
+		echo "Usage: /etc/init.d/firewall start|stop|restart"
+		exit 1
+	;;
+esac
+
+exit 0
+

@@ -1,0 +1,352 @@
+#!/bin/bash
+############################
+#Nagios Backup Plugin      #
+#TeTesept  		   #
+############################
+
+#Nagios Plugin zur überprüfung das Backups
+
+#Statuscodes:
+#Code   Status
+#0      OK
+#1      WARNING
+#2      CRITICAL
+#3      UNKNOWN
+
+#Chlog
+version=0.21
+#Erkennt jetzt alte backups
+
+#--------------------Options---------------------------------------------------------------------------------------------------------------
+agefullmax=14			#Maximales alter des Fullbackups in Tagen
+ageincrmax=7			#Maximales alter des letzen Backups (Incr oder Full) in Tagen
+startcheck=8			#Beginn der checks in Stunden (9 = 9 Uhr morgens)
+stopcheck=18			#Ende der checks in Stunden (18 = 18 Uhr abends)
+backupsetsmax=8			#Maximale Anzahl an Sets pro Chain (Gesamtanzahl der Full und Inc Sicherungen)
+backupsetsmin=0			#Minimale Anzahl an Sets pro Chain (Gesamtanzahl der Full und Inc Sicherungen)
+activewarnings=yes		#Warnungen aktivieren/deaktivieren. Kritische Stadien bleiben aktiv (yes = aktiviert / no = deaktiviert)
+note=""					#Platz für notizen (Wird im Icinga angezeigt)
+
+#--------------------Funktionen---------------------------------------------------------------------------------------------------------
+#Debug on / off
+debug()
+{
+        fett=`tput bold`
+        reset=`tput sgr0`
+        if [ "$1" == "off" ]
+        then
+                set +x
+                echo "${fett}--------------------DEBUG=OFF-------------------${reset}"
+        elif [ "$1" == "on" ] || [ "$1" = "" ]
+        then
+                echo "${fett}--------------------DEBUG=ON--------------------${reset}"
+                set -x
+        else
+                echo "Error. Wrong Input: ${0} ${1}. Use \"debug on\" or \"debug off\" to enter or leave debug mode"
+                exit
+        fi
+}
+
+#Info   Immer ausfeben ueber trap
+defdone()
+{
+        echo "Duplicity Version:${DuplicityVersion} ${DuplicityStatus}"
+        echo "File Checked: ${newest_backup_file}"
+		echo "Script Version: v${version}"
+		echo "Notiz: $note"
+}
+
+#Trap zum ausfeben der Infos
+trap 'defdone' SIGINT SIGHUP SIGILL SIGSYS SIGTERM SIGSTOP 0 1 2 3
+
+#--------------------Initalisierung---------------------------------------------------------------------------------------------------------
+curdir=`echo $0 | sed 's/check_backup//'`
+newest_backup_file=`ls -ltr /var/log/dupl_backup/ | egrep "Full|Inc" |  tail -n 1 |  awk '{print $9}'`
+backup_path="/var/log/dupl_backup/"
+bpf=${backup_path}${newest_backup_file}
+outstatus="notset"
+outerror="notset"
+backup_status="notset"
+if [ "$newest_backup_file" == "" ]
+then
+        echo "Error in Init. Unable to find newest backup file"
+        exit 3
+fi
+
+#Backup und Duplicitx infos sammeln (Try&Catch)
+{
+StartTime=`egrep "StartTime " $bpf | awk '{print $3,$4,$5,$6,$7}'` &&
+RawDeltaSize=`egrep "RawDeltaSize" $bpf | awk '{print $3,$4}'` &&
+ElapsedTime=`egrep "ElapsedTime" $bpf | awk '{print $3,$4,$5,$6}'` &&
+Lastfull=`egrep "Letzte voll|Last full" $bpf | tail -n 1 | awk '{print $4,$5,$6,$7,$8}'| sed 's/date://'` &&
+DuplicityVersion=`cat /var/lib/dpkg/status | egrep -a7 "Package: duplicity" | tail -n 7  | egrep "Version" |  head -n 1 | awk '{print $2}' |  sed 's/ubuntu1//'` &&
+DuplicityStatus=`cat /var/lib/dpkg/status | egrep -a7 "Package: duplicity" | tail -n 7  |egrep "Status" | head -n 1 | sed 's/ok //' | awk '{print $3,$2,$4}'`
+} || {
+        echo "Error on line $LINENO. Empty variable detectet. Unable to fetch infos"
+        exit 3
+}
+
+#echo $StartTime
+#echo $RawDeltaSize
+#echo $ElapsedTime
+#echo $Lastfull
+#echo $DuplicityVersion
+#echo $DuplicityStatus
+
+#Backuptyp abfragen
+BackupType=`grep "Backup_full" $bpf`
+if [ "$BackupType" != "" ]
+then
+        BackupType=Full
+else
+        BackupType=Incr
+fi
+
+#--------------------Positive Suche = OK-------------------------------------------------------------------------------------------------------------
+#Suche nach Errors
+errors=`egrep "Errors 0" $bpf | tail -n 1`
+#Suche nach Masterchain
+primarybackupchain=`egrep "Found primary backup chain with matching signature chain|Primäre Sicherungskette mit passender Signaturkette gefunden|Primäre Sucherungskette mit pasender Signatur-Kette gefunden" $bpf | tail -n 1`
+
+#Lxcfs Bug
+lxcfserror=`egrep "Fehler beim Zugriff auf möglicherweise reservierte Datei /var/lib/lxcfs" $bpf`
+if [ "$lxcfserror" != "" ]
+then
+	errors="Errors 0"
+fi
+
+
+#Status als OK ansehen wenn...
+if [ "$errors" != "" ] && [ "$primarybackupchain" != "" ]
+then
+        backup_status=0
+        outerror="No Errors found - Type: ${BackupType} ${StartTime} ${ElapsedTime} ${RawDeltaSize} LastFull: ${Lastfull}"
+fi
+
+#-----------------Neutrale Suche = Warning-------------------------------------------------------------------------------------------------------------
+#Suche nach Backupchain
+secundarybackupchain=`egrep "Found 1 secondary backup chain|1 zusätzliche Sicherungskette gefunden." $bpf | tail -n 1`
+#Suche nach alten Sicherungen
+oldbackups=`egrep "Keine alten Sicherungssätze gefunden, nichts gelöscht" $bpf | tail -n 1`
+#Empfohlene Version
+recdupversion="0.7.06-2ubuntu2"
+#Suche Duplicity sattus
+duplicityhold=`cat /var/lib/dpkg/status | egrep -a7 "Package: duplicity" | tail -n 7 | egrep "Status" | head -n 2 | tail -n 1 | sed 's/ok //' | grep hold`
+#Suche SSHBackend
+sshbackend=`grep "Backend" $bpf`
+#Suche nach fehlgeschlagenen Verbindungsversuchen
+attemptcount=`egrep "failed \(attempt" $bpf | tail -n 1 |  awk '{print $7}' | sed 's/#//g'| sed 's/).//g' | sed 's/(attempt//g'`
+#Suche nach unvollständigen backupsets
+backupsets=`egrep "No orphaned or incomplete backup sets found|0 incomplete backup sets|Keine verwaisten oder unvollständigen Sicherungssätze gefunden" $bpf | tail -n 1`
+
+if [ "$activewarnings" == "yes" ]
+then
+
+#Status als bedenklich ansehen wenn...
+if [ "$sshbackend" == "" ]
+then
+    backup_status=1
+    outerror="SSHBackend not found"
+fi
+if [ "$secundarybackupchain" == "" ]
+then
+        backup_status=1
+        outerror="Secondary backup chain not found"
+fi
+if [ "$oldbackups" != "" ]
+then
+        backup_status=1
+        outerror="Keine alten Sicherungssätze gefunden, nichts gelöscht"
+fi
+if [ "$duplicityhold" == "" ]
+then
+        backup_status=1
+        outerror="Package dublicity $DuplicityVersion status HOLD not set"
+fi
+if [ "$recdupversion" != "$DuplicityVersion" ]
+then
+        backup_status=1
+        outerror="Installed Duplicityversion (${DuplicityVersion}) is differnt from recomended (${recdupversion})"
+fi
+if [[ "$attemptcount" > "2"  ]]
+then
+        backup_status=1
+        outerror="More than three connection attempts were needed"
+fi
+if [ "$backupsets" == ""  ]
+then
+        backup_status=1
+        outerror="Orphaned or incomplete backup sets found"
+fi
+
+else
+	note="Warnings are disabled" 
+fi
+#--------------------Negative Suche = Critical-------------------------------------------------------------------------------------------------------------------
+
+#Suche nach inhalt
+nomail=`egrep "Lese ausdruckbasierte Dateiliste|Reading globbing filelist|Ausdruckbasierte Dateiliste wird gelesen|Reading filelist" $bpf | tail -n 1 `
+#Suche Duplicity installation
+duplicityinstalled=`cat /var/lib/dpkg/status | grep -a7 duplicity | egrep "Status" | head -n 2 | sed 's/ok //' | grep installed`
+#Suche nach Anzahl der Sicherungssätze
+safetyset=`egrep "Anzahl der enthaltenen Sicherungssätze:|Number of contained backup sets:" $bpf | tail -n 1 | awk '{print $1}'`
+if [ "$safetyset" == "Anzahl" ]
+then
+	safetyset=`egrep "Anzahl der enthaltenen Sicherungssätze:" $bpf | tail -n 1 | awk '{print $5}'`
+else
+	safetyset=`egrep "Number of contained backup sets:" $bpf | tail -n 1 | awk '{print $6}'`
+fi
+
+#Status als fehlgeschlagen ansehen wenn...
+
+if [ "$errors" == "" ]
+then
+	backup_status=2
+    outerror="Number of Errors not 0 "
+fi
+if [[ "$safetyset" > "$backupsetsmax" ]] && [[ "$safetyset" == "$backupsetsmin" ]]
+then
+         backup_status=2
+         outerror="Number of contained backup sets = $safetyset"
+fi
+if [ "$primarybackupchain" == "" ]
+then
+        backup_status=2
+        outerror="Primary backup chain not found"
+fi
+if [ "$nomail" == ""  ]
+then
+        backup_status=2
+        outerror="Failed reading Filelist"
+fi
+if [ "$duplicityinstalled" == ""  ]
+then
+        backup_status=2
+        outerror="Duplicity is not installed"
+fi
+
+#--------------------Backup zu alt = Warning-------------------------------------------------------------------------------------------------------------
+if [ "$activewarnings" == "yes" ]  && [ "$backup_status" == "0" ]
+then
+
+Lastfulljear=`echo $Lastfull | awk '{print $5}'`
+Lastfullmonth=`echo $Lastfull | awk '{print $2}'`
+Lastfullday=`echo $Lastfull | awk '{print $3}'`
+
+Lastincrjear=`echo $StartTime | awk '{print $5}' | sed 's/).//g'`
+Lastincrmonth=`echo $StartTime | awk '{print $2}'`
+Lastincrday=`echo $StartTime | awk '{print $3}'`
+
+declare -A monthLT
+
+monthLT[Jan]=01
+monthLT[Feb]=02
+monthLT[Mar]=03
+monthLT[Apr]=04
+monthLT[May]=05
+monthLT[Jun]=06
+monthLT[Jul]=07
+monthLT[Aug]=08
+monthLT[Sep]=09
+monthLT[Oct]=10
+monthLT[Nov]=11
+monthLT[Dec]=12
+
+for month in "${!monthLT[@]}"
+do 	
+	if [ "$month" ==  "$Lastfullmonth" ]
+	then
+		Lastfullmonth=${monthLT[$month]}
+	fi
+	if [ "$month" ==  "$Lastincrmonth" ]
+	then
+		Lastincrmonth=${monthLT[$month]}
+	fi
+done
+
+#echo $Lastfulljear
+#echo $Lastfullmonth
+#echo $Lastfullday
+
+#echo $Lastincrjear
+#echo $Lastincrmonth
+#echo $Lastincrday
+
+today=$(date +%Y%m%d)
+
+if [ ${#Lastincrday} = 1 ]
+then
+        Lastincrday=$(printf %02d $Lastincrday)
+fi
+
+if [ ${#Lastfullday} = 1 ]
+then
+        Lastfullday=$(printf %02d $Lastfullday)
+fi
+
+backupfullday=`echo ${Lastfulljear}${Lastfullmonth}${Lastfullday} | sed 's/\r//g'`
+backupincrday=`echo ${Lastincrjear}${Lastincrmonth}${Lastincrday} | sed 's/\r//g' | sed 's/)//g'`
+
+datedifffull=`echo $((($(date +%s --date $today)-$(date +%s --date $backupfullday))/86400))`
+datediffincr=`echo $((($(date +%s --date $today)-$(date +%s --date $backupincrday))/86400))`
+
+
+if [[ "$datedifffull" -gt "$agefullmax" ]]
+then
+	backup_status=1
+    outerror="Last Full Backup is older then $datedifffull Days. Max age is $agefullmax Days"
+fi
+
+if [[ "$datediffincr" -gt "$ageincrmax" ]]
+then
+	backup_status=1
+    outerror="Last Incr Backup is older then $datediffincr Days. Max Age is $ageincrmax Days"
+fi
+
+else
+	note="Warnings are disabled" 
+fi
+
+#--------------------Statusabfrage nich möglich = Unknown------------------------------------------------------------------------------
+#Fehler in der abarbeitung wenn...
+if [ "$backup_status" == "notset"  ]
+then
+        backup_status=3
+        outerror="Error fetching Data."
+fi
+
+#--------------------Backup Time = OK---------------------------------------------------------------------------------------------------
+#Währen des Backups ist keine abfrage möglich status wird als ok angesehen
+curhour=`date +%H | sed -e 's/^0//'`
+if [[ "$curhour" -gt "$stopcheck" ]] || [[ "$curhour" -lt "$startcheck" ]]
+then
+        backup_status=0
+        outerror="Its Backup Time, unable to get a judicious status"
+fi
+
+#--------------------Status ausgeben----------------------------------------------------------------------------------------------------
+case $backup_status in
+0)
+        echo "Backup Ok = $outerror"
+        exit 0
+;;
+1)
+        echo "Backup Warning = $outerror"
+        exit 1
+;;
+2)
+        echo "Backup Failed = $outerror"
+        exit 2
+;;
+3)
+        echo "Backup Unknown = $outerror"
+        exit 3
+;;
+*)
+        echo "Error. Unknown Error code: $backup_status"
+;;
+esac
+
+#EOF Error
+echo "Error in Exit. EOF reached. Something went terribly wrong...Sry"
+exit 3

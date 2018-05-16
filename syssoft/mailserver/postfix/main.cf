@@ -1,0 +1,173 @@
+#------------------------------------------------------------------
+##### Global Options
+biff = no
+append_dot_mydomain = no
+delay_warning_time = 4h
+recipient_delimiter = +
+inet_interfaces = all
+home_mailbox = Maildir/
+mailbox_command = 
+#content_filter = smtp-amavis:[127.0.0.1]:10024
+
+#------------------------------------------------------------------
+##### Localhost
+myhostname = 
+myorigin = /etc/mailname 
+mynetworks = 
+mydestination = localhost
+smtpd_banner =  ${myhostname}
+
+#------------------------------------------------------------------
+##### Datenbanken
+alias_maps = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+virtual_maps = hash:/etc/postfix/virtual 
+transport_maps = hash:/etc/postfix/transport
+relay_domains = hash:/etc/postfix/relaydomains 
+#sender_dependent_relayhost_maps = hash:/etc/postfix/sender_relayhost
+#sender_canonical_maps = hash:/etc/postfix/canonical 
+#relocated_maps = hash:/etc/postfix/relocated
+header_checks = pcre:/etc/postfix/header_checks_pcre
+body_checks = pcre:/etc/postfix/body_checks_pcre
+
+#------------------------------------------------------------------
+##### Performance
+initial_destination_concurrency = 100
+local_destination_concurrency_limit = 100
+local_destination_recipient_limit = 100
+default_destination_concurrency_limit = 100
+smtp-amavis_destination_concurrency_limit = 100
+default_process_limit = 100
+smtpd_client_connection_count_limit = 100
+in_flow_delay = 0s
+smtpd_timeout=3600s
+smtpd_proxy_timeout=3600s
+
+#------------------------------------------------------------------
+##### Global Restrictions
+allow_percent_hack = no
+smtpd_helo_required = yes
+mailbox_size_limit = 0
+message_size_limit = 250000000
+swap_bangpath = no
+strict_rfc821_envelopes = yes
+
+#------------------------------------------------------------------
+##### SASL
+smtpd_sasl_local_domain = localhost
+smtpd_sasl_auth_enable = yes
+smtpd_sasl_security_options = noanonymous
+broken_sasl_auth_clients = yes
+smtpd_recipient_restrictions = permit_sasl_authenticated,permit_mynetworks, reject_unauth_destination
+
+#------------------------------------------------------------------
+##### TLS parameters
+tls_ssl_options = NO_COMPRESSION
+tls_high_cipherlist=EDH+CAMELLIA:EDH+aRSA:EECDH+aRSA+AESGCM:EECDH+aRSA+SHA384:EECDH+aRSA+SHA256:EECDH:+CAMELLIA256:+AES256:+CAMELLIA128:+AES128:+SSLv3:!aNULL:!eNULL:!LOW:!3DES:!MD5:!EXP:!PSK:!DSS:!RC4:
+
+##### TLS Hight Cipher
+smtpd_use_tls = yes
+smtp_use_tls = yes
+smtp_tls_note_starttls_offer = yes
+smtpd_tls_loglevel = 0
+smtpd_tls_received_header = yes
+tls_random_source = dev:/dev/urandom
+smtpd_tls_session_cache_timeout = 3600s
+  
+#TLS Protokoll
+smtp_tls_protocols = !SSLv2, !SSLv3
+smtpd_tls_protocols = !SSLv2 !SSLv3
+smtp_tls_mandatory_protocols = !SSLv2 !SSLv3
+smtpd_tls_mandatory_protocols = !SSLv2 !SSLv3
+ 
+#TLS Cipher
+smtp_tls_exclude_ciphers = aNULL, MD5 , DES, ADH, RC4, PSD, SRP, 3DES, eNULL
+smtpd_tls_exclude_ciphers = aNULL, MD5 , DES, ADH, RC4, PSD, SRP, 3DES, eNULL
+smtp_tls_mandatory_exclude_ciphers = aNULL, MD5 , DES, ADH, RC4, PSD, SRP, 3DES, eNULL
+smtpd_tls_mandatory_exclude_ciphers = aNULL, MD5 , DES, ADH, RC4, PSD, SRP, 3DES, eNULL
+
+### outgoing connections ###
+smtp_tls_security_level=may
+smtp_tls_cert_file=/etc/myssl/public.pem
+smtp_tls_key_file=/etc/myssl/privkey.pem
+#smtpd_tls_CAfile = /etc/myssl/cacert.pem
+smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
+
+### incoming connections ###
+smtpd_tls_security_level=may
+smtpd_tls_cert_file=/etc/myssl/public.pem
+smtpd_tls_key_file=/etc/myssl/privkey.pem
+#smtpd_tls_CAfile = /etc/myssl/cacert.pem
+smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
+
+#------------------------------------------------------------------
+##### Restriction_Classes
+#smtpd_helo_restrictions =
+#   check_helo_access hash:/etc/postfix/helo_access,
+#	reject_unauth_pipelining,
+#	reject_unknown_hostname,
+#	reject_unknown_client,
+#	reject_non-fqdn_hostname,
+#	reject_invalid_hostname,
+#	reject
+#	permit
+
+#smtpd_client_restrictions =
+#   check_client_access hash:/etc/postfix/client_access
+#   reject_rbl_client relays.ordb.org,
+#   reject_rbl_client cbl.abuseat.org,
+#   reject_rbl_client list.dsbl.org,
+#   reject_rbl_client opm.blitzed.org,
+#   reject_rbl_client sbl.spamhaus.org,
+#   reject_rhsbl_client blackhole.securitysage.com,
+#	reject_unknown_client,
+#	reject
+#	permit
+
+#smtpd_sender_restrictions =
+#   check_sender_access hash:/etc/postfix/sender_access,
+#   reject_unverified_sender,
+#	check_helo_access hash:/etc/postfix/helo_access,
+#	reject_unauth_pipelining,
+#	reject_unknown_sender_domain,
+#	reject_unknown_hostname,
+#	reject_unknown_client,
+#	reject_non-fqdn_sender,
+#	reject_non-fqdn_hostname,
+#	reject_invalid_hostname,
+#   reject_unknown_recipient_domain,
+#   permit_mynetworks,
+#   permit_sasl_authenticated,
+#   reject_unauth_destination,
+#   reject_rbl_client pbl.spamhaus.org,
+#   reject_rbl_client sbl.spamhaus.org,
+#   reject_rbl_client xbl.spamhaus.org,
+#   reject_rbl_client zen.spamhaus.org,
+#   reject_rbl_client bl.spamcop.net,
+#   reject_rbl_client cbl.abuseat.org,
+#   reject_rbl_client dnsbl-1.uceprotect.net,
+#   reject_rbl_client dnsbl-2.uceprotect.net,
+#   reject_rbl_client dnsbl-3.uceprotect.net,
+#   reject_rbl_client dnsbl.sorbs.net,
+#	reject
+#	permit
+
+#smtpd_recipient_restrictions =
+#        check_recipient_access hash:/etc/postfix/recipient_access
+#	reject_unknown_sender_domain
+#	reject_unknown_recipient_domain
+#	reject_unknown_hostname
+#	reject_unknown_client
+#	reject_non-fqdn_sender
+#	reject_non-fqdn_recipient
+#	reject_non-fqdn_hostname
+#	reject_invalid_hostname
+#	reject_unauth_destination
+#   permit_sasl_authenticated
+#	reject_unverified_recipient
+#	permit_mynetworks
+#	reject_unauth_destination
+#	reject
+#	permit
+#------------------------------------------------------------------
+

@@ -1,0 +1,128 @@
+define host{
+        use                     generic-host
+        host_name               SERVER_FqDn
+        alias                   SERVER_FqDn
+        address                 ipipipip
+#		address6                ipv6ipv6ipv6ipv6
+        hostgroups              linux-servers
+}
+
+#SSH
+define service{
+        use                             generic-service
+        host_name                       SERVER_FqDn
+        service_description             SSH
+        check_command                   check_ssh
+}
+
+#Load
+define service{
+        use                             generic-service
+        host_name                       SERVER_FqDn
+        service_description             LOAD
+        check_command                   check_nrpe_check_load
+}
+
+#Storrage
+define service{
+        use                             generic-service
+        host_name                       SERVER_FqDn
+        service_description             STORAGE
+        check_command                   check_nrpe_check_disk
+}
+
+#Backup		
+define service{
+        use                             generic-service
+        host_name                       SERVER_FqDn
+        service_description             Duplicity Backup
+        check_command                   check_nrpe_check_backup
+}
+
+#SMTP
+#define service{
+#        use                             generic-service
+#        host_name                       SERVER_FqDn
+#        service_description             SMTP
+#        check_command                   check_smtp
+#}
+
+#HTTP
+#define service{
+#        use                             generic-service
+#        host_name                       SERVER_FqDn
+#        service_description             HTTP
+#        check_command                   check_http
+#}
+
+#BIND
+#define service{
+#        use                             generic-service
+#        host_name                       SERVER_FqDn
+#        service_description             NAMED
+#        check_command                   check_nrpe_check_named
+#        }
+
+#Users
+#define service{
+#        use                             generic-service
+#        host_name                       SERVER_FqDn
+#        service_description             USERS
+#        check_command                   check_nrpe_check_users
+#        }
+
+#Zombie
+#define service{
+#        use                             generic-service
+#        host_name                       SERVER_FqDn
+#        service_description             ZOMBIE-PROCS
+#        check_command                   check_nrpe_check_zombie_procs
+#        }
+
+#Procs
+#define service{
+#        use                             generic-service
+#        host_name                       SERVER_FqDn
+#        service_description             TOTAL-PROCS
+#        check_command                   check_nrpe_check_total_procs
+#        }
+
+#Swap
+#define service{
+#        use                             generic-service
+#        host_name                       SERVER_FqDn
+#        service_description             SWAP
+#        check_command                   check_nrpe_check_swap
+#        }
+
+#Areca
+#define service{
+#        use                             generic-service
+#        host_name                       SERVER_FqDn
+#        service_description             ARECA
+#        check_command                   check_nrpe_check_areca
+#        }
+
+#IPMI
+#define service{
+#        use                             generic-service
+#        host_name                       SERVER_FqDn
+#        service_description             IPMI
+#        check_command                   check_ipmi_sensor!/usr/lib/nagios/plugins/ipmi_configs/SERVER_FqDn
+#}
+
+#Pingv4
+#define service{
+#        use                             generic-service
+#        host_name                       SERVER_FqDn
+#        service_description             PING
+#        check_command                   check_ping!300.0,20%!800.0,60%
+#        }
+
+#Pingv6
+#define service{
+#        use                             generic-service
+#        host_name                       SERVER_FqDn
+#        service_description             PING-IPv6
+#        check_command                   check_ping6!300.0,20%!800.0,60%
+#        }

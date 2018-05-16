@@ -1,0 +1,25 @@
+######################################################################################################
+                                        ##   Help-File   ##
+######################################################################################################
+
+System Info
+You can view your System configuration here
+
+System Update
+Here you can update your System including the Package list and the Packages
+
+System Upgrade
+Here you can update your System including the Package list and the Packages.
+Furthermore it will install some new required packages
+
+Release Upgrade
+The Release Upgrade brings your System to a new Release Version
+A System reboot is required
+
+System Clean
+Clears the Download Cache, Deletes old Logs ans does some Virus scanning
+
+Base installation
+Installs common Programs and sets some recommended settings
+
+

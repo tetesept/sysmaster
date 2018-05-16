@@ -1,0 +1,118 @@
+#!/bin/bash
+############################
+#System Master Skript      #
+#TeTesept        	   #
+############################
+
+#Nagios Plugin zur ueberwachung des Datenbak backups
+
+#Code	Status
+#0	OK
+#1	WARNING
+#2	CRITICAL
+#3	UNKNOWN
+
+#Chlog
+version=0.2
+
+#--------------------Funktionen---------------------------------------
+#Debug
+debug() 
+{
+	fett=`tput bold`														
+	reset=`tput sgr0`														
+	if [ "$1" == "off" ]
+	then
+		set +x
+		echo "${fett}--------------------DEBUG=OFF-------------------${reset}"
+	elif [ "$1" == "on" ] || [ "$1" = "" ]
+	then
+		echo "${fett}--------------------DEBUG=ON--------------------${reset}"
+		set -x
+	else
+		echo "Error. Wrong Input: ${0} ${1}. Use \"debug on\" or \"debug off\" to enter or leave debug mode"
+		exit
+	fi
+}
+
+#Info 	Immer ausfeben ueber trap
+defdone()
+{
+	echo "Script Version: v${version} - ${ScriptVersion}" 
+	echo "Script Rights: ${ScriptRights}"
+	echo "Status Code: ${backup_status}"
+}
+
+#Zum einblenden der Konsolenbefehle aktivieren 
+#debug on
+
+#Trap zum ausfeben der Infos
+trap 'defdone' SIGINT SIGHUP SIGILL SIGSYS SIGTERM SIGSTOP 0 1 2 3
+
+#Init
+curdir=`echo $0 | sed 's/check_db//'`
+DBSTATUS=/var/log/dbbackup/bdsattus.log
+outerror=""
+backup_status="notset"
+touched=`ls -lah --time-style=+%d.%m.%Y_%H:%M:%S /var/log/dbbackup/bdsattus.log  | sed 's/_/ /g' | awk '{print $6,$7}'`
+
+#Backup und Duplicitx infos sammeln (Try&Catch)
+#Try Block
+{
+ScriptRights=`ls -lah $curdir | grep check_db | egrep -v "check_db~|check_dbi" | awk '{print $1,$3,$4}'` &&
+ScriptVersion=`ls -lah --time-style=+%d.%m.%Y_%H:%M:%S $curdir | grep check_db | grep -v check_db~  | sed 's/_/ /g' | awk '{print $6,$7}'`
+#Catch Block
+} || {
+	echo "Error on line $LINENO. Empty variable detectet. Unable to fetch infos"
+	exit 3
+}
+
+#DB Status abfragen
+bdfail=`egrep "failed|beschreibbar|zugegriffen" $DBSTATUS`
+outerror="${outerror}LastDBBackup: $touched = `cat $DBSTATUS | sed ':a;N;$!ba;s/\n/ /g'`"
+if [ "$bdfail" == "" ]
+then	
+	backup_status=0
+fi
+
+#DB Status abfragen fehlgeschlagen
+bdfail=`egrep "success|failed" $DBSTATUS`
+if [ "$bdfail" == "" ]
+then	
+	outerror="Unable to fetch data"
+	backup_status=1
+fi
+
+#DB Backup nicht gefunden
+if ! [ -f $DBSTATUS ]
+then
+    outerror="Backup has not been created so far"
+    backup_status=2
+fi
+
+#Fehler in der statusabfrage
+if [ "$backup_status" == "notset" ]
+then
+	backup_status=3
+fi
+
+#--------------------Status ausgeben--------------------------------
+
+case $backup_status in
+0)
+        echo "DB Backup Ok = $outerror"
+        exit 0
+;;
+1)
+        echo "DB Backup Warning = $outerror"
+        exit 1
+;;
+2)
+        echo "DB Backup Faild = $outerror"
+        exit 2
+;;
+3)
+        echo "DB Backup Unknown = $outerror"
+        exit 3
+;;
+esac
