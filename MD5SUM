@@ -8,6 +8,7 @@ b5617b15c1ea0ef2e44c8ef3077d6aa8  ./sysbackup/sysbackup.sh
 4cfbc9c11dca0440fe8b220069ed6272  ./sysbackup/backup/backupstatus.sh
 bd1393acb43aa38947d43146607719c9  ./sysbackup/backup/incrbackup.sh
 8e9d14f649c695f77cb0fe77c52e6af6  ./systest/systest.sh
+10ebce1f24fdd9c53e0227d90dd04ff8  ./gitupload.sh
 e9a49abd4188d4eda8c4c1217aeffe53  ./funk/funk.sh
 9c18e208205b5d273b329c5db87edf96  ./syssoft/syssoft.sh
 b01c16c6eafd879af4126c7e360e3a96  ./syssoft/mysqlserver/mysql_secure_installation.sh
