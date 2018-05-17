@@ -58,7 +58,7 @@ find $instdir -name "*.sh" ! -name "*sysmaster.sh" -print0 | xargs -0 md5sum > $
 #find $instdir -name "*.log" -exec rm -Rv {} \;
 
 #Erstinstallation erzwingen
-#apt-get -qq --force-yes purge dialog 1>> /dev/null 2>> /dev/null 3>> /dev/null
+#apt-get purge dialog
 
 #Starte das Logging
 startlog $log															#--> ./funk/funk.sh
@@ -319,27 +319,6 @@ then
 		echo "No root Access = Error. Exit" >>$log
         exit
     fi
-	echo ""
-	echo -n "${bldblu}S "
-	sleep 0.1
-	echo -n "${bldred}Y "
-	sleep 0.1
-	echo -n "${bldblu}S "
-	sleep 0.1
-	echo -n "${bldred}M "
-	sleep 0.1
-	echo -n "${bldblu}A "
-	sleep 0.1
-	echo -n "${bldred}S "
-	sleep 0.1
-	echo -n "${bldblu}T "
-	sleep 0.1
-	echo -n "${bldred}E "
-	sleep 0.1
-	echo "${bldblu}R "
-	sleep 0.1
-	echo "${fett}by ${reset}${bldblu}T${bldred}e${bldblu}T${bldred}esept${reset}"
-	sleep 2
 	echo ""
 	#Integrität ueberpruefen
 	echo "${fett}Intregrety check${reset}"
