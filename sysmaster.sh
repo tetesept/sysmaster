@@ -3,8 +3,6 @@
 #Sysmaster				   #
 ############################
 
-
-
 #Sysmaster absolutes Verzeichnis setzen
 pwddir=`pwd`
 instdir=`echo $0 | sed 's/\/sysmaster.sh//g'`
