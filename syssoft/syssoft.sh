@@ -73,7 +73,10 @@ syswebserver()
 			if [ "$(which mysql)" == "" ] 
 			then
 				local secureinstall="ok"
-			fi					
+			fi	
+			debconf-set-selections <<< 'templates/mysql_debconf', password=hSucaSvUjk
+			debconf-set-selections <<< 'templates/mysql_debconf_again', password=hSucaSvUjk
+			debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password hSucaSvUjk'			
 			debconf-set-selections <<< 'mysql-server mysql-server/root_password password hSucaSvUjk'
 			debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password hSucaSvUjk'
 			apt-get -q -y --force-yes install mysql-server 1>>$log 2>>$log 3>>$log

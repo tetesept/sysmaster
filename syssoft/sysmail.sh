@@ -17,9 +17,10 @@ sysmailservers()
 	local mtaok=no
 	until [ "$mtaok" == "ok" ]
 	do
-		mtatype=`dialog --colors --backtitle "System Master Script" --title "Install Mail Server" --checklist "Chose Sevrer Type:" 0 0 3 \
-		MTA "MTA POP IMAP" on\
-		FILTER "Spam/Vierenfilter" off 3>&1 1>&2 2>&3`
+		mtatype=`dialog --colors --backtitle "System Master Script" --title "Install Mail Server" --checklist "Chose Sevrer Type:" 0 0 4 \
+		Server "MTA POP IMAP" on\
+		FILTER "Add Spam/Vierenfilter to Mailserver"  on\
+		MAILBOX "Add a Mailbox to Mailserver" off 3>&1 1>&2 2>&3`
 		if [ "$?" == "1"  ] 
 		then
 			return 0
@@ -32,11 +33,14 @@ sysmailservers()
 		for current in $mtatype
 		do
 			case $current in
-				"MTA")
+				"Server")
 					sysmailmta
 				;;
 				"FILTER")
 					sysmailfilter
+				;;
+				"MAILBOX")
+					sysmailbox
 				;;
 			esac
 		done
@@ -66,13 +70,22 @@ sysmailmta()
         echo "20" ; sleep 3
         echo "XXX"
         ) | dialog --colors --backtitle "System Master Script" --title "Progress State" --gauge "Installing postfix" 8 80
+			debconf-set-selections <<< "postfix postfix/mailname string $hostfqdn "
+			debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Internet Site'"
 			apt-get -q -y --force-yes install postfix 1>>$log 2>>$log 3>>$log		
 		#IMAP installieren
         (
         echo "30" ; sleep 3
         echo "XXX"
         ) | dialog --colors --backtitle "System Master Script" --title "Progress State" --gauge "Installing courier-imap" 8 80
-			apt-get -q -y --force-yes install courier-imap 1>>$log 2>>$log 3>>$log	
+			debconf-set-selections <<< "courier-base courier-base/webadmin-configmode boolean false"
+			debconf-set-selections <<< "courier-base courier-base/certnotice note" 
+			debconf-set-selections <<< "courier-base courier-base/courier-user note"
+			debconf-set-selections <<< "courier-base courier-base/maildirpath note"
+			debconf-set-selections <<< "courier-base courier-base/maildir string Maildir"
+			debconf-set-selections <<< "courier-mta courier-mta/dsnfrom string mailer-daemon@$(hostname -f)"
+			debconf-set-selections <<< "courier-mta courier-mta/defaultdomain string"
+					apt-get -q -y --force-yes install courier-imap 1>>$log 2>>$log 3>>$log	
 		#IMAPs installieren
         (
         echo "35" ; sleep 3
@@ -99,7 +112,7 @@ sysmailmta()
 			apt-get -q -y --force-yes install sasl2-bin 1>>$log 2>>$log 3>>$log		
 			mkdir -v /etc/postfix/sasl  1>>$log 2>>$log 3>>$log
 			cp -v -r ${instdir}/syssoft/mailserver/postfix/smtpd.conf /etc/postfix/sasl/ 1>>$log 2>>$log 3>>$log
-			chown postfix:postfix /var/spool/postfix/etc/sasldb2
+			chown postfix:postfix /var/spool/postfix/etc/sasldb2  1>>$log 2>>$log 3>>$log
 		#postfix-pcre installieren
         (
         echo "60" ; sleep 3
@@ -117,14 +130,27 @@ sysmailmta()
         echo "75" ; sleep 3
         echo "XXX"
         ) | dialog --colors --backtitle "System Master Script" --title "Progress State" --gauge "make-ssl-cert " 8 80	
+		local zertinfook=nok
+		until [ "$zertinfook" == "ok" ]
+		do			
 			if [ -f  $pubfile ] || [ -f  $privfile ] || [ -f  $cafile ] || [ -f  $caprivfile ] || [ -f  $csrfile ]
 			then
-				zertinfo=`openssl x509 -noout -issuer -dates -in $pubfile`
-				dialog --colors --backtitle "System Master Script" --title "Firewall" --msgbox "\Z1Info\Zn \nCertificat found \n $zertinfo"  8 80
+				local zertinfo=`openssl x509 -noout -issuer -dates -in $pubfile`
+				dialog --colors --backtitle "System Master Script" --title "Firewall" --yesno "\Z1Info\Zn \nCertificat found. Data Ok? \n $zertinfo"  10 80
+				case $? in
+				0)
+					zertinfook=ok
+				;;
+				1)
+					zertinfook=nok
+					strongzert
+				;;
+			esac	
 			else
 				dialog --colors --backtitle "System Master Script" --title "Firewall" --msgbox "\Z1Info\Zn \nCertificat not found\nStarting generation"  8 80
 				strongzert
 			fi
+		done	
 		#postfix einrichten
         (
         echo "80" ; sleep 3
@@ -373,6 +399,8 @@ sysmailfilter()
         echo "20" ; sleep 3
         echo "XXX"
         ) | dialog --colors --backtitle "System Master Script" --title "Progress State" --gauge "Installing postfix" 8 80
+			debconf-set-selections <<< "postfix postfix/mailname string $hostfqdn "
+			debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Internet Site'"
 			apt-get -q -y --force-yes install postfix 1>>$log 2>>$log 3>>$log
 		#amavis installieren
         (
@@ -503,8 +531,8 @@ sysmailbox(){
 		chmod 775 /home/$mailhost/Maildir  1>>$log 2>>$log 3>>$log
 		
 		#virtual
-		#echo "${hostmail}	${mailhost}" >> /etc/postfix/virtual
-		#postmap /etc/postfix/virtual
+		echo "${hostmail}	${mailhost}" >> /etc/postfix/virtual
+		postmap /etc/postfix/virtual
 		
 		#Account infos an admin
 		local testmail=${instdir}/syssoft/testmail
@@ -539,3 +567,5 @@ sysmailbox(){
 
 	return 1
 }
+
+

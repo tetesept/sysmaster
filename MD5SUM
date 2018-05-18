@@ -10,9 +10,9 @@ bd1393acb43aa38947d43146607719c9  ./sysbackup/backup/incrbackup.sh
 8e9d14f649c695f77cb0fe77c52e6af6  ./systest/systest.sh
 892f273ea74734aa2e8470998a69d24f  ./gitupload.sh
 e9a49abd4188d4eda8c4c1217aeffe53  ./funk/funk.sh
-b512faed9cda4170576d9b1f7e87e3bc  ./syssoft/syssoft.sh
+4007a4b1bb3d3bad0008783866d58856  ./syssoft/syssoft.sh
 b01c16c6eafd879af4126c7e360e3a96  ./syssoft/mysqlserver/mysql_secure_installation.sh
-71f69ffe19f65dbcf99754e42626420c  ./syssoft/sysmail.sh
+59955357b83d41dab8b875a144cb3353  ./syssoft/sysmail.sh
 d4d4606a03deaeb223fb1978d6a07b13  ./syssoft/firewall/check-iptables.sh
 a9e7f0c7f4d6d82f15c3c35523f37081  ./version/version.sh
 5c83caf25e28ad6cbacce69068dbe7c3  ./baseinst/baseinst.sh
