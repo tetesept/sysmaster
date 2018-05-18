@@ -43,6 +43,7 @@ syswebserver()
         echo "XXX"
         ) | dialog --colors --backtitle "System Master Script" --title "Progress State" --gauge "Enabeling mods" 8 80			
 		a2enmod rewrite 1>>$log 2>>$log 3>>$log
+		a2enmod ssl 1>>$log 2>>$log 3>>$log
 	#WWW Content
         (
         echo "30" ; sleep 3
@@ -97,26 +98,39 @@ syswebserver()
         echo "60" ; sleep 3
         echo "XXX"
         ) | dialog --colors --backtitle "System Master Script" --title "Progress State" --gauge "Installing Vsftpd" 8 80		
+		
 		local zertinfook=nok
-			
+		until [ "$zertinfook" == "ok" ]
+		do			
 			if [ -f  $pubfile ] || [ -f  $privfile ] || [ -f  $cafile ] || [ -f  $caprivfile ] || [ -f  $csrfile ]
 			then
-				zertinfo=`openssl x509 -noout -issuer -dates -in $pubfile`
-				dialog --colors --backtitle "System Master Script" --title "Firewall" --msgbox "\Z1Info\Zn \nCertificat found \n $zertinfo"  8 80
+				local zertinfo=`openssl x509 -noout -issuer -dates -in $pubfile`
+				dialog --colors --backtitle "System Master Script" --title "Firewall" --yesno "\Z1Info\Zn \nCertificat found. Data Ok? \n $zertinfo"  10 80
 				case $? in
 				0)
 					zertinfook=ok
 				;;
 				1)
 					zertinfook=nok
+					strongzert
 				;;
 			esac	
 			else
 				dialog --colors --backtitle "System Master Script" --title "Firewall" --msgbox "\Z1Info\Zn \nCertificat not found\nStarting generation"  8 80
 				strongzert
 			fi
-			
-			
+		done	
+	#Zerz info nach Webserver
+        (
+        echo "55" ; sleep 3
+        echo "XXX"
+        ) | dialog --colors --backtitle "System Master Script" --title "Progress State" --gauge "Writing Zert info to Apache Webserver" 8 80			
+		
+		local zertservername=`openssl x509 -noout -issuer -dates -in /etc/myssl/public.pem | head -n 1 |awk '{print $18}' | sed "s/\,//"`		
+		
+		cp -v -f -r $pubfile ${pubfile}.backup 1>>$log 2>>$log 3>>$log
+		rm -rv $pubfile 1>>$log 2>>$log 3>>$log
+		sed "s/www.example.com/${zertservername}/" ${pubfile}.backup > $pubfile			
 	#vsftpd
         (
         echo "65" ; sleep 3
@@ -211,6 +225,7 @@ syswebserver()
         ) | dialog --colors --backtitle "System Master Script" --title "Progress State" --gauge "Configuring Firewall" 8 80		
 		
 		local httpinok=`grep tcp_in= /etc/firewall | grep 80`
+		local httpsinok=`grep tcp_in= /etc/firewall | grep 80`
 		local ftpinaok=`grep tcp_in= /etc/firewall | grep 20`
 		local ftpinbok=`grep tcp_in= /etc/firewall | grep 21`
 		
@@ -231,6 +246,25 @@ syswebserver()
 			echo "Port 80 open"  1>>$log 2>>$log 3>>$log
 		else
 			echo "Port 80 already open"  1>>$log 2>>$log 3>>$log
+		fi
+		
+		#HTTPS freischalten
+		if [ "$httpinok" == "" ]
+		then
+			local firstport=`grep tcp_in= /etc/firewall`
+			if [ "$firstport" == "tcp_in=\"\"" ]
+			then
+				local httpin=`grep tcp_in= /etc/firewall | sed "s/\"/\"443/"`			#Ausführen falls dies der erste port ist (komma werlassen)
+			else
+				local httpin=`grep tcp_in= /etc/firewall | sed "s/\"/\"443,/"`			#Ausführen falls es schon andere Port gibt (komma hinzufügen)
+			fi
+			sed '/^tcp_in=/d' /etc/firewall > ${tempvz}/firewall.tmp1
+			sed -e "/^# variables$/a ${httpin}" ${tempvz}/firewall.tmp1 > ${tempvz}/firewall.tmp2
+			cp -v ${tempvz}/firewall.tmp2 /etc/firewall 1>>$log 2>>$log 3>>$log
+			rm ${tempvz}/*.tmp*
+			echo "Port 443 open"  1>>$log 2>>$log 3>>$log
+		else
+			echo "Port 443 already open"  1>>$log 2>>$log 3>>$log
 		fi
 		
 		#FTPA freischalten
@@ -337,7 +371,7 @@ syswebserver()
 	cat ${readinstaldir}syssoft/mysqlserver/mysqlsecuresql.log  >> ${checklog}
 	dialog --colors --backtitle "System Master Script" --title "Webserver status" --exit-label "OK" --textbox $checklog 0 0
 	
-	systemctl restart apache2.service
+	systemctl restart apache2
 	
 	return 1
 }
@@ -445,3 +479,7 @@ sysfirewall()
 	
 	return 1
 }
+
+
+
+

@@ -8,9 +8,9 @@ b5617b15c1ea0ef2e44c8ef3077d6aa8  ./sysbackup/sysbackup.sh
 4cfbc9c11dca0440fe8b220069ed6272  ./sysbackup/backup/backupstatus.sh
 bd1393acb43aa38947d43146607719c9  ./sysbackup/backup/incrbackup.sh
 8e9d14f649c695f77cb0fe77c52e6af6  ./systest/systest.sh
-47bc689624cf4d787ff867feb318bbc1  ./gitupload.sh
+892f273ea74734aa2e8470998a69d24f  ./gitupload.sh
 e9a49abd4188d4eda8c4c1217aeffe53  ./funk/funk.sh
-9c18e208205b5d273b329c5db87edf96  ./syssoft/syssoft.sh
+b512faed9cda4170576d9b1f7e87e3bc  ./syssoft/syssoft.sh
 b01c16c6eafd879af4126c7e360e3a96  ./syssoft/mysqlserver/mysql_secure_installation.sh
 71f69ffe19f65dbcf99754e42626420c  ./syssoft/sysmail.sh
 d4d4606a03deaeb223fb1978d6a07b13  ./syssoft/firewall/check-iptables.sh
