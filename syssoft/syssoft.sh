@@ -97,14 +97,26 @@ syswebserver()
         echo "60" ; sleep 3
         echo "XXX"
         ) | dialog --colors --backtitle "System Master Script" --title "Progress State" --gauge "Installing Vsftpd" 8 80		
+		local zertinfook=nok
+			
 			if [ -f  $pubfile ] || [ -f  $privfile ] || [ -f  $cafile ] || [ -f  $caprivfile ] || [ -f  $csrfile ]
 			then
 				zertinfo=`openssl x509 -noout -issuer -dates -in $pubfile`
 				dialog --colors --backtitle "System Master Script" --title "Firewall" --msgbox "\Z1Info\Zn \nCertificat found \n $zertinfo"  8 80
+				case $? in
+				0)
+					zertinfook=ok
+				;;
+				1)
+					zertinfook=nok
+				;;
+			esac	
 			else
 				dialog --colors --backtitle "System Master Script" --title "Firewall" --msgbox "\Z1Info\Zn \nCertificat not found\nStarting generation"  8 80
 				strongzert
 			fi
+			
+			
 	#vsftpd
         (
         echo "65" ; sleep 3
