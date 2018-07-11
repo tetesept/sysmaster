@@ -30,7 +30,7 @@ baseinst()
             case $hostfqdn in
 				*.*.*)
 					hostfqdnok=ok
-					myip=`ifconfig | grep -E "encap|eth|br|address|net|gate" | egrep -v "#|loopback|inet6|Link encap" | awk '{print $2}' | sed s/"addr:"/""/g | sed s/"Adresse:"/""/g | egrep -v "127.0"`	
+					myip=`ifconfig | grep -E "encap|eth|br|address|net|gate" | egrep -v "#|loopback|inet6|Link encap" | awk '{print $2}' | sed s/"addr:"/""/g | sed s/"Adresse:"/""/g | egrep -v "127.0" | head -n 1`	
 					#Hostname
 					local hostname_only=`echo $hostfqdn | sed 's/\./ /' | awk '{print $1}'`
 					echo $hostname_only > /etc/hostname

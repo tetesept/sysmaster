@@ -468,7 +468,7 @@ do
 	esac
 done
 
-idgmtbunfweslz
+
 #Kein Mastermenu aufrufen bei Direktwahl
 if  [ "$1" == "-i" ] || [ "$1" == "-d" ] || [ "$1" == "-g" ] || [ "$1" == "-m" ] || [ "$1" == "-t" ] || [ "$1" == "-b" ] || [ "$1" == "-u" ] || [ "$1" == "-n" ]
 then

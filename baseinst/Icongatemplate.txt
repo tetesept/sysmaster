@@ -2,7 +2,7 @@ define host{
         use                     generic-host
         host_name               SERVER_dev01.rkk.local
         alias                   SERVER_dev01.rkk.local
-        address                 10.49.14.104
+        address                 ipipipip
 #		address6                ipv6ipv6ipv6ipv6
         hostgroups              linux-servers
 }
