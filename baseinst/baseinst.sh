@@ -4,7 +4,7 @@
 ############################
 
 #Basisinstallation
-#Installiert wichtige Progremme:
+#Installiert wichtige Programme
 
 baseinst()
 {

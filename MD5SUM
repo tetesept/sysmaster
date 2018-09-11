@@ -1,5 +1,5 @@
 d2f4b6a63b01a9d5f9dce1b41a7ad6f8  ./helpme/helpme.sh
-7f350967093f0c7fab622dd47ce6e613  ./var/var.sh
+efb4ad99b1232d6fab6c5cad41404b71  ./var/var.sh
 a9e7f0c7f4d6d82f15c3c35523f37081  ./version/version.sh
 e9a49abd4188d4eda8c4c1217aeffe53  ./funk/funk.sh
 9f0fad718b0a4972a0141e18c61f2dfd  ./sysbackup/backup/dbbackup.sh
@@ -11,7 +11,7 @@ b5617b15c1ea0ef2e44c8ef3077d6aa8  ./sysbackup/sysbackup.sh
 7c7ad99320f13d40434816abf29a4369  ./relcheck/relcheck.sh
 c9ad5d78569e7f5085ba5174b49a3cf8  ./viewlog/viewlog.sh
 7940c4d1a434b5276e5595e7bc02832a  ./info/info.sh
-5c83caf25e28ad6cbacce69068dbe7c3  ./baseinst/baseinst.sh
+305176a0ada28c5686742f8581d816eb  ./baseinst/baseinst.sh
 8e9d14f649c695f77cb0fe77c52e6af6  ./systest/systest.sh
 7bbc18bb45fcafd0338e53eb0cf2d3a6  ./sysup/sysup.sh
 892f273ea74734aa2e8470998a69d24f  ./gitupload.sh

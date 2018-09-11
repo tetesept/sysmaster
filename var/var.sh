@@ -29,7 +29,7 @@ chlog3="Generate Strong Zertifikate"									#Neuerung 3
 #
 
 #Allgemein Variablen
-defaultmail=t.schewe@kaeltereiss.de
+defaultmail=root@tetesept.local
 currel=`lsb_release -a | grep Release | sed 's/\./ /' | awk '{print $2}'`
 datetime=`date +%Y%m%d_%H:%M:%S`										#Date and Time
 date=`date +%Y%m%d`														#Date
