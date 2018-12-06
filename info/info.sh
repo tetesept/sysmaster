@@ -76,8 +76,7 @@ systeminfo()
  
         #Ram
         echo "Ram:" >> $sysinfo
-        echo "MB-Slot   Modul"  >> $sysinfo
-		lshw -short | egrep "DIMM|Systemspeicher|System memory|System Memory" | awk '{print $3,$4,$5,$6,$7,$8}' |  egrep -v "EMAIL|DIMM DRAM "  >> $sysinfo
+		free -h |  awk '{print $1,$2,$3}'  >> $sysinfo
 		echo "" >> $sysinfo
 
 		#Disk
@@ -153,7 +152,7 @@ systeminfo()
 
 		#External Network
 	    echo "External IP:" >> $sysinfo
-		myipadr=`w3m www.whatismyipaddress.com 2> /dev/null | egrep -A 2 "Your IPv4 Address|My IP Address Is" | head -n 2 | tail -n 1`
+		myipadr=`w3m www.whatismyipaddress.com 2> /dev/null | egrep -A 2 "Your IPv4 Address|My IP Address Is" | tail -n 1`
 		echo $myipadr 1>>$sysinfo 2>>$sysinfo 3>>$sysinfo
 		echo "" >>$sysinfo
 						

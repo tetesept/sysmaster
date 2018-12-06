@@ -72,20 +72,19 @@ syswebserver()
         ) | dialog --colors --backtitle "System Master Script" --title "Progress State" --gauge "Installing Mysql" 8 80			
 			if [ "$(which mysql)" == "" ] 
 			then
+				debconf-set-selections <<< 'templates/mysql_debconf', password=hSucaSvUjk
+				debconf-set-selections <<< 'templates/mysql_debconf_again', password=hSucaSvUjk
+				debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password hSucaSvUjk'			
+				debconf-set-selections <<< 'mysql-server mysql-server/root_password password hSucaSvUjk'
+				debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password hSucaSvUjk'
+				apt-get -q -y --force-yes install mysql-server 1>>$log 2>>$log 3>>$log
 				local secureinstall="ok"
-			fi	
-			debconf-set-selections <<< 'templates/mysql_debconf', password=hSucaSvUjk
-			debconf-set-selections <<< 'templates/mysql_debconf_again', password=hSucaSvUjk
-			debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password hSucaSvUjk'			
-			debconf-set-selections <<< 'mysql-server mysql-server/root_password password hSucaSvUjk'
-			debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password hSucaSvUjk'
-			apt-get -q -y --force-yes install mysql-server 1>>$log 2>>$log 3>>$log
+			fi
 	#MySql secure install
         (
         echo "50" ; sleep 3
         echo "XXX"
         ) | dialog --colors --backtitle "System Master Script" --title "Progress State" --gauge "Performing Mysql secure installation" 8 80		
-			echo $secureinstall
 			if [ "$secureinstall" == "ok" ] 
 			then
 				${instdir}/syssoft/mysqlserver/mysql_secure_installation.sh hSucaSvUjk
@@ -95,7 +94,10 @@ syswebserver()
         echo "55" ; sleep 3
         echo "XXX"
         ) | dialog --colors --backtitle "System Master Script" --title "Progress State" --gauge "Set Mysql root password" 8 80			
-		mysqladmin --user=root --password=hSucaSvUjk password $mysqlpass
+		if [ "$secureinstall" == "ok" ] 
+		then
+			mysqladmin --user=root --password=hSucaSvUjk password $mysqlpass
+		fi
 	#zert
         (
         echo "60" ; sleep 3
@@ -197,7 +199,7 @@ syswebserver()
         echo "87" ; sleep 3
         echo "XXX"
         ) | dialog --colors --backtitle "System Master Script" --title "Progress State" --gauge "Chroot SFTP User" 8 80	
-		local sshconftag=`egrep "TSconfig" /etc/ssh/sshd_config.conf`
+		local sshconftag=`egrep "ftpload" /etc/ssh/sshd_config`
 		if [ "$sshconftag" == "" ]
 		then
 			#Backup sshconfig

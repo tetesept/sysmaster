@@ -10,8 +10,8 @@ b5617b15c1ea0ef2e44c8ef3077d6aa8  ./sysbackup/sysbackup.sh
 3fc2116077d877880f9dc049b8f1303f  ./distup/distup.sh
 7c7ad99320f13d40434816abf29a4369  ./relcheck/relcheck.sh
 c9ad5d78569e7f5085ba5174b49a3cf8  ./viewlog/viewlog.sh
-7940c4d1a434b5276e5595e7bc02832a  ./info/info.sh
-305176a0ada28c5686742f8581d816eb  ./baseinst/baseinst.sh
+5607976593d0a7524309750a3cca66df  ./info/info.sh
+29ac5246a05037cab4fde81c995b2957  ./baseinst/baseinst.sh
 8e9d14f649c695f77cb0fe77c52e6af6  ./systest/systest.sh
 7bbc18bb45fcafd0338e53eb0cf2d3a6  ./sysup/sysup.sh
 892f273ea74734aa2e8470998a69d24f  ./gitupload.sh
@@ -21,5 +21,5 @@ c57018aabdabf0ac9cd8f37c00e2d1ff  ./sysclean/sysclean.sh
 59955357b83d41dab8b875a144cb3353  ./syssoft/sysmail.sh
 d4d4606a03deaeb223fb1978d6a07b13  ./syssoft/firewall/check-iptables.sh
 b01c16c6eafd879af4126c7e360e3a96  ./syssoft/mysqlserver/mysql_secure_installation.sh
-4007a4b1bb3d3bad0008783866d58856  ./syssoft/syssoft.sh
+ca7da85529941612e6c7947a2076f520  ./syssoft/syssoft.sh
 102fac8900012d3fa983e2f99ee4dbbb  ./extern/backupserver/add-backup-user.sh
