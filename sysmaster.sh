@@ -417,7 +417,7 @@ do
 			;;
 			t)
 				echo "Direkt -> Systemtest" >>$log
-				systest
+				systemtest
 			;;
 			b)
 				echo "Direkt -> Baseinsallation" >>$log

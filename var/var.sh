@@ -9,15 +9,15 @@
 
 #Script Info Variablen
 skname="Systemmaster"
-version="v0.2"                                							#Verionsnummer
-chdatum="16.05.2018"                            						#Datum der letzten Aenderung
+version="v0.3"                                							#Verionsnummer
+chdatum="07.12.2018"                            						#Datum der letzten Aenderung
 autor="Thomas Schewe"                           						#Letzter Autor
 autormail="none"        												#E-Mail Adresse des Autors
 loc=`find $instdir -name '*.sh' | xargs wc -l | tail -n 1 | awk '{print $1}'`	#LOC Counter
 
 #CHangelog (Neu in $version)
 chlog1="Mail TSL support, POP3S included, IMAPS included"				#Neuerung 1
-chlog2="Ubuntu 18.04 LTS Support"										#Neuerung 2
+chlog2="Ubuntu 18.04 LTS Support (Beta)"								#Neuerung 2
 chlog3="Generate Strong Zertifikate"									#Neuerung 3
 
 #ideen
@@ -29,7 +29,7 @@ chlog3="Generate Strong Zertifikate"									#Neuerung 3
 #
 
 #Allgemein Variablen
-defaultmail=root@tetesept.local
+defaultmail=tetesept@tetesept.loca
 currel=`lsb_release -a | grep Release | sed 's/\./ /' | awk '{print $2}'`
 datetime=`date +%Y%m%d_%H:%M:%S`										#Date and Time
 date=`date +%Y%m%d`														#Date
