@@ -6,7 +6,7 @@
 #Systeminformationen
 
 systeminfo()
-{
+{	
 	local log=${instdir}/info/info.log					#Default Logfile
 	touch $log
 	startlog $log
@@ -14,7 +14,7 @@ systeminfo()
 	local sysinfo=${instdir}/info/sysinfo.log			
 	rm -v $sysinfo 1>>$log 2>>$log 3>>$log
 	touch $sysinfo
-
+	
 		dialog --colors --stdout --backtitle "System Master Script" --title "Sysinfo" --msgbox "\Z1Warning\Zn \nCollectin System data may take some time\n" 6 60 --and-widget --timeout 1 --nook --begin 15 15 --infobox "Fetching data..." 5 30	
 		
 		if [ "$(which landscape-sysinfo)" == "" ]

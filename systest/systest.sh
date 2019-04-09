@@ -16,14 +16,15 @@ systemtest()
 	
 	dialog --colors --backtitle "System Master Script" --title "System Performance Test" --no-kill --tailboxbg $testlog 50 100		
 
+	echo "Preparing Test..." 1>>$testlog 2>>$testlog 3>>$testlog
 	apt-get -y -q --force-yes install sysbench 1>>$log 2>>$log 3>>$log
 	apt-get -y -q --force-yes install mbw 1>>$log 2>>$log 3>>$log
+	apt-get -y -q --force-yes install speedtest-cli 1>>$log 2>>$log 3>>$log
 	useradd --no-create-home benchmark  1>>$log 2>>$log 3>>$log
-	
 	
 	#CPU Test1 
 	echo "----CPU Test 1 Latency----" 1>>$testlog 2>>$testlog 3>>$testlog
-	sysbench cpu --cpu-max-prime=20000 run  | egrep "total time:|Latency|min:|avg:|max:" | sed 's/^[ \t]*//' 1>>$testlog 2>>$testlog 3>>$testlog
+	sysbench cpu --cpu-max-prime=10000 --time=0 --events=10000 run  | egrep "total time:|Latency|min:|avg:|max:" | sed 's/^[ \t]*//' 1>>$testlog 2>>$testlog 3>>$testlog
 	echo "" 1>>$testlog 2>>$testlog 3>>$testlog
 	
 	#CPU Test2
@@ -52,16 +53,16 @@ systemtest()
 	#DISK Test 2
 	echo "----DISK Test 2 SeqRW----" 1>>$testlog 2>>$testlog 3>>$testlog
 	echo "read" 1>>$testlog 2>>$testlog 3>>$testlog
-	{ dd if=/dev/zero of=/tmp/test.file bs=100M count=50 oflag=direct ;} 2>&1  | grep MB 1>>$testlog 2>>$testlog 3>>$testlog
+	{ dd if=/dev/zero of=/tmp/test.file bs=100M count=50 oflag=direct ;} 2>&1  | grep copied 1>>$testlog 2>>$testlog 3>>$testlog
 	echo "written" 1>>$testlog 2>>$testlog 3>>$testlog
-	{ dd if=/tmp/test.file of=/dev/null bs=1M count=10000 ;} 2>&1 | grep MB  1>>$testlog 2>>$testlog 3>>$testlog
+	{ dd if=/tmp/test.file of=/dev/null bs=1M count=10000 ;} 2>&1 | grep copied  1>>$testlog 2>>$testlog 3>>$testlog
 	rm /tmp/test.file  1>>$testlog 2>>$testlog 3>>$testlog
 	echo "" 1>>$testlog 2>>$testlog 3>>$testlog
 	
 
 	#Bandwidth
 	echo "----Bandwidth Test----" 1>>$testlog 2>>$testlog 3>>$testlog
-	apt-get install speedtest-cli 1>>$log 2>>$log 3>>$log
+	
 	speedtest-cli 1>>$testlog 2>>$testlog 3>>$testlog
 	echo "" 1>>$testlog 2>>$testlog 3>>$testlog
 	
