@@ -37,7 +37,7 @@ useradd -d /${home}/$username -m -s /bin/false $username;
 echo "$username:$password" | chpasswd;
 
 # Ergebnis mailen...
-echo "$username:$password"  | mail -s "Backup-User angelegt fuer $server" "teteseptete@web.de"
+echo "$username:$password"  | mail -s "Backup-User angelegt fuer $server" "root@localhost"
 
 # Berechtigungen der Verzeichnisse setzen...
 chown root:$username /${home}/$username

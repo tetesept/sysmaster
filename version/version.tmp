@@ -3,16 +3,16 @@
  #              SysMaster Skript               #
  ###############################################
 
- Autor: Thomas Schewe (TeTesept) 
- Version: v0.1 
- Releasedate: 27.01.2017 
- Lines of Code: 4594
+ Autor: Thomas Schewe 
+ Version: v0.3 
+ Releasedate: 07.12.2018 
+ Lines of Code: 4679
 
  Web: http://www.tetesept.de
- Mail: t.schewe@kaeltereiss.de
+ Mail: root@rkk.de
 
- New in v0.1:
+ New in v0.3:
  --Mail TSL support, POP3S included, IMAPS included
- --Ubuntu 16.04 LTS Support
+ --Ubuntu 18.04 LTS Support (Beta)
  --Generate Strong Zertifikate
 

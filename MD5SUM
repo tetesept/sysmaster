@@ -9,7 +9,7 @@ b5bbefee322bcb7bbed0ea4e8c1ba48b  ./syssoft/syssoft.sh
 b01c16c6eafd879af4126c7e360e3a96  ./syssoft/mysqlserver/mysql_secure_installation.sh
 59955357b83d41dab8b875a144cb3353  ./syssoft/sysmail.sh
 c9ad5d78569e7f5085ba5174b49a3cf8  ./viewlog/viewlog.sh
-892f273ea74734aa2e8470998a69d24f  ./gitupload.sh
+cc97b6375894ade536d5086b160b7a85  ./gitupload.sh
 d2f4b6a63b01a9d5f9dce1b41a7ad6f8  ./helpme/helpme.sh
 7bbc18bb45fcafd0338e53eb0cf2d3a6  ./sysup/sysup.sh
 6d211c2c338bd768d77ea64cb7c622ef  ./systest/systest.sh
@@ -18,8 +18,8 @@ bd1393acb43aa38947d43146607719c9  ./sysbackup/backup/incrbackup.sh
 9f0fad718b0a4972a0141e18c61f2dfd  ./sysbackup/backup/dbbackup.sh
 4cfbc9c11dca0440fe8b220069ed6272  ./sysbackup/backup/backupstatus.sh
 b5617b15c1ea0ef2e44c8ef3077d6aa8  ./sysbackup/sysbackup.sh
-ade0c0876cd0aac9cafdde1fa3ffddc5  ./var/var.sh
-102fac8900012d3fa983e2f99ee4dbbb  ./extern/backupserver/add-backup-user.sh
+f6800b2476ac33bf3ae3063944194d70  ./var/var.sh
+1e4cbf9f2810d4a73f87c7dd7ee62b09  ./extern/backupserver/add-backup-user.sh
 e9a49abd4188d4eda8c4c1217aeffe53  ./funk/funk.sh
 7c7ad99320f13d40434816abf29a4369  ./relcheck/relcheck.sh
 a9e7f0c7f4d6d82f15c3c35523f37081  ./version/version.sh
