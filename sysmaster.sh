@@ -491,3 +491,5 @@ else
 	starthelp															#--> ./funk/funk.sh 
 fi
 exit 1
+
+
