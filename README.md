@@ -45,4 +45,4 @@ Execute ./sysmaster whithout any Parameter to enter GUI
 
 !!!NOTE!!!
 
-If you like this Skrit and find it helpful Please feel free to donate to keep this Project free Thanks in advance for your help Paypal mail@thomas-schewe.de
+If you like this Skrit and find it helpful Please feel free to donate to keep this Project free Thanks in advance for your help Paypal teteseptete@googlemail.com
